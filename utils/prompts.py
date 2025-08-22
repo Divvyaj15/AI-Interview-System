@@ -142,7 +142,23 @@ Output Requirements:
 
 Response Format:
 {{
-    "feedback": "<Comprehensive feedback that includes specific strengths, areas for improvement, alignment with job requirements, and actionable recommendations for enhancement. Make sure to complete with in 90 words.>",
-    "score": <Numerical score from 1-10 based on response quality, relevance, and job fit>
+    "feedback": "<Comprehensive feedback that includes specific strengths, areas for improvement, alignment with job requirements, and actionable recommendations for enhancement. Make sure to complete within 90 words.>",
+    "score": <Numerical score from 1-10 based on response quality, relevance, and job fit>,
+    "criteria_scores": {{
+        "relevance": <Score 1-10 for how well the response addresses the question>,
+        "completeness": <Score 1-10 for how thorough the answer is>,
+        "structure": <Score 1-10 for how well-organized the response is>,
+        "specificity": <Score 1-10 for how detailed and concrete the examples are>,
+        "impact": <Score 1-10 for how well measurable results are demonstrated>,
+        "professionalism": <Score 1-10 for how appropriate and confident the communication is>
+    }},
+    "competency_assessment": {{
+        "technical_skills": <Score 1-10 for role-specific abilities>,
+        "problem_solving": <Score 1-10 for analytical thinking>,
+        "communication": <Score 1-10 for interpersonal skills>,
+        "leadership": <Score 1-10 for teamwork and management abilities>,
+        "cultural_fit": <Score 1-10 for values alignment>,
+        "growth_mindset": <Score 1-10 for adaptability and learning potential>
+    }}
 }}
 """

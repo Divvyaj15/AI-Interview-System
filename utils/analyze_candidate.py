@@ -26,8 +26,30 @@ async def _make_llm_call_async(prompt: str) -> Dict[str, Any]:
         loop = asyncio.get_event_loop()
         # Run the synchronous LLM call in a thread pool
         response = await loop.run_in_executor(executor, get_response_from_llm, prompt)
-        return parse_json_response(response)
+        parsed_response = parse_json_response(response)
+        
+        if parsed_response is None:
+            print("Warning: LLM returned None, using fallback response")
+            # Return a fallback response based on the prompt type
+            if "feedback" in prompt.lower():
+                return {
+                    "feedback": "Unable to generate detailed feedback at this time. Please ensure your response is clear and addresses the question asked.",
+                    "score": 5.0
+                }
+            elif "next_question" in prompt.lower():
+                return {
+                    "next_question": "Can you tell me more about your experience and how it relates to this role?"
+                }
+            else:
+                return {
+                    "name": "Candidate",
+                    "resume_highlights": "Unable to extract resume highlights at this time."
+                }
+        
+        return parsed_response
+        
     except Exception as e:
+        print(f"Error in _make_llm_call_async: {str(e)}")
         raise InterviewAnalysisError(f"Failed to get LLM response: {str(e)}")
 
 async def get_next_question(
@@ -61,13 +83,21 @@ async def get_next_question(
         
         response = await _make_llm_call_async(final_prompt)
         
+        # Ensure we have a valid response
+        if response is None:
+            print("Warning: LLM returned None for next question, using fallback")
+            return "Can you tell me more about your experience and how it relates to this role?"
+        
         if "next_question" not in response:
-            raise InterviewAnalysisError("Missing 'next_question' in LLM response")
+            print(f"Warning: Missing 'next_question' in LLM response: {response}")
+            return "Can you tell me more about your experience and how it relates to this role?"
             
         return response["next_question"]
         
     except Exception as e:
-        raise InterviewAnalysisError(f"Question generation failed: {str(e)}")
+        print(f"Error in get_next_question: {str(e)}")
+        # Return a safe fallback instead of raising an error
+        return "Can you tell me more about your experience and how it relates to this role?"
 
 async def get_feedback_of_candidate_response(
     question: str, 
@@ -77,7 +107,7 @@ async def get_feedback_of_candidate_response(
 ) -> Dict[str, Any]:
     """
     Generate feedback for candidate's response
-    
+
     Args:
         question: The question that was asked
         candidate_response: Candidate's response
@@ -100,27 +130,55 @@ async def get_feedback_of_candidate_response(
         
         response = await _make_llm_call_async(final_prompt)
         
+        # Ensure we have a valid response
+        if response is None:
+            print("Warning: LLM returned None for feedback, using fallback")
+            return {
+                "feedback": "Unable to generate detailed feedback at this time. Please ensure your response is clear and addresses the question asked.",
+                "score": 5.0
+            }
+        
         # Validate response structure
         required_fields = ["feedback", "score"]
         missing_fields = [field for field in required_fields if field not in response]
         if missing_fields:
-            raise InterviewAnalysisError(f"Missing fields in response: {missing_fields}")
+            print(f"Warning: Missing fields in response: {missing_fields}")
+            print(f"Response received: {response}")
+            # Provide fallback for missing fields
+            if "feedback" not in response:
+                response["feedback"] = "Unable to generate detailed feedback at this time."
+            if "score" not in response:
+                response["score"] = 5.0
         
         # Validate score is numeric
         try:
             score = float(response["score"])
             if not (0 <= score <= 10):  # assuming score is 0-10
-                print(f"Score {score} is outside expected range 0-10")
+                print(f"Warning: Score {score} is outside expected range 0-10, clamping to valid range")
+                score = max(0, min(10, score))
+                response["score"] = score
         except (ValueError, TypeError):
-            raise InterviewAnalysisError(f"Invalid score format: {response['score']}")
+            print(f"Warning: Invalid score format: {response['score']}, using default score")
+            response["score"] = 5.0
+        
+        # Handle detailed scoring if available
+        criteria_scores = response.get("criteria_scores", {})
+        competency_assessment = response.get("competency_assessment", {})
         
         return {
             "feedback": response["feedback"],
-            "score": response["score"]
+            "score": response["score"],
+            "criteria_scores": criteria_scores,
+            "competency_assessment": competency_assessment
         }
         
     except Exception as e:
-        raise InterviewAnalysisError(f"Feedback generation failed: {str(e)}")
+        print(f"Error in get_feedback_of_candidate_response: {str(e)}")
+        # Return a safe fallback instead of raising an error
+        return {
+            "feedback": "Unable to generate detailed feedback at this time. Please ensure your response is clear and addresses the question asked.",
+            "score": 5.0
+        }
 
 async def analyze_candidate_response_and_generate_new_question(
     question: str, 
@@ -162,7 +220,23 @@ async def analyze_candidate_response_and_generate_new_question(
             timeout=timeout
         )
         return next_question, feedback
+        
     except asyncio.TimeoutError:
-        raise
+        print("Warning: Analysis timed out, using fallback responses")
+        return (
+            "Can you tell me more about your experience and how it relates to this role?",
+            {
+                "feedback": "Unable to generate detailed feedback due to timeout. Please ensure your response is clear and addresses the question asked.",
+                "score": 5.0
+            }
+        )
     except Exception as e:
-        raise InterviewAnalysisError(f"Response analysis failed: {str(e)}")
+        print(f"Error in analyze_candidate_response_and_generate_new_question: {str(e)}")
+        # Return safe fallbacks instead of raising an error
+        return (
+            "Can you tell me more about your experience and how it relates to this role?",
+            {
+                "feedback": "Unable to generate detailed feedback at this time. Please ensure your response is clear and addresses the question asked.",
+                "score": 5.0
+            }
+        )

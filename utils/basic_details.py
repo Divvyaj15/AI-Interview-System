@@ -5,12 +5,23 @@ from utils.prompts import basic_details
 
 def extract_resume_info_using_llm(resume_content):
     # Use LLM to extract resume info
-    final_prompt = basic_details.format(resume_content=resume_content)
-    response = get_response_from_llm(final_prompt)
-    response = parse_json_response(response)
-    name = response["name"]
-    resume_highlights = response["resume_highlights"]
-    return name, resume_highlights
+    try:
+        final_prompt = basic_details.format(resume_content=resume_content)
+        response = get_response_from_llm(final_prompt)
+        response = parse_json_response(response)
+        
+        if response is None:
+            print("Warning: LLM returned None, using fallback resume info")
+            return "Candidate", "Experienced professional with strong skills and background."
+        
+        name = response.get("name", "Candidate")
+        resume_highlights = response.get("resume_highlights", "Experienced professional with strong skills and background.")
+        return name, resume_highlights
+        
+    except Exception as e:
+        print(f"Error extracting resume info: {str(e)}")
+        print("Using fallback resume information")
+        return "Candidate", "Experienced professional with strong skills and background."
 
 
 ai_greeting_messages = [

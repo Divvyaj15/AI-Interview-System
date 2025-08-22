@@ -8,6 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+venv/
 
 # environment variables
 .env
@@ -16,3 +17,13 @@ wheels/
 outputs/*  
 audio/*
 inputs/*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

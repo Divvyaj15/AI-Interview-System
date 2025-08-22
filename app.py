@@ -3,6 +3,7 @@ import asyncio
 import os
 import time
 from datetime import datetime
+from pathlib import Path
 from utils import (
     transcribe_with_speechmatics,
     extract_resume_info_using_llm,
@@ -15,6 +16,8 @@ from utils import (
     save_interview_data,
     load_content_streamlit,
 )
+from utils.speaking_skills_analyzer import SpeakingSkillsAnalyzer
+from utils.sentiment_audio_analyzer import SentimentAudioAnalyzer
 
 MAX_QUESTIONS = 5
 
@@ -913,6 +916,316 @@ def display_final_results():
         - Consider mock interviews for practice
         - Focus on fundamental skills development
         """)
+
+    # Speaking Skills Analysis
+    st.subheader("🎤 Speaking Skills Assessment")
+    
+    try:
+        # Initialize speaking skills analyzer
+        speaking_analyzer = SpeakingSkillsAnalyzer()
+        
+        # Check if we have audio files to analyze
+        audio_dir = Path("audio")
+        if audio_dir.exists():
+            audio_files = list(audio_dir.rglob("*.wav")) + list(audio_dir.rglob("*.mp3"))
+            
+            if audio_files:
+                st.info(f"📁 Found {len(audio_files)} audio recordings for speaking skills analysis")
+                
+                # Analyze the most recent audio file
+                latest_audio = max(audio_files, key=os.path.getctime)
+                
+                with st.spinner("Analyzing speaking skills..."):
+                    speaking_results = speaking_analyzer.analyze_speaking_skills(str(latest_audio))
+                
+                if 'error' not in speaking_results:
+                    # Display speaking skills results
+                    col1, col2 = st.columns([1, 2])
+                    
+                    with col1:
+                        overall_speaking_score = speaking_results['overall_score']
+                        if overall_speaking_score >= 8.5:
+                            st.success(f"**Speaking Score: {overall_speaking_score:.2f}/10** 🎯")
+                            st.markdown("*Exceptional Communication*")
+                        elif overall_speaking_score >= 7.0:
+                            st.info(f"**Speaking Score: {overall_speaking_score:.2f}/10** 💬")
+                            st.markdown("*Strong Communication*")
+                        elif overall_speaking_score >= 5.5:
+                            st.warning(f"**Speaking Score: {overall_speaking_score:.2f}/10** 📢")
+                            st.markdown("*Good Communication*")
+                        else:
+                            st.error(f"**Speaking Score: {overall_speaking_score:.2f}/10** 🔇")
+                            st.markdown("*Needs Improvement*")
+                    
+                    with col2:
+                        st.markdown(f"**Assessment:** {speaking_results['assessment']}")
+                        st.markdown(f"**Audio File:** {latest_audio.name}")
+                    
+                    # Detailed speaking skills breakdown
+                    with st.expander("🎤 Detailed Speaking Skills Analysis", expanded=False):
+                        breakdown = speaking_results['score_breakdown']
+                        
+                        # Create columns for skills display
+                        col1, col2, col3 = st.columns(3)
+                        skills_list = list(breakdown.items())
+                        
+                        with col1:
+                            for i in range(0, len(skills_list), 3):
+                                if i < len(skills_list):
+                                    skill, details = skills_list[i]
+                                    skill_name = skill.replace("_", " ").title()
+                                    score = details['score']
+                                    grade = details['grade']
+                                    
+                                    if score >= 8.0:
+                                        st.success(f"**{skill_name}**: {score:.1f}/10 ({grade})")
+                                    elif score >= 6.0:
+                                        st.info(f"**{skill_name}**: {score:.1f}/10 ({grade})")
+                                    else:
+                                        st.warning(f"**{skill_name}**: {score:.1f}/10 ({grade})")
+                        
+                        with col2:
+                            for i in range(1, len(skills_list), 3):
+                                if i < len(skills_list):
+                                    skill, details = skills_list[i]
+                                    skill_name = skill.replace("_", " ").title()
+                                    score = details['score']
+                                    grade = details['grade']
+                                    
+                                    if score >= 8.0:
+                                        st.success(f"**{skill_name}**: {score:.1f}/10 ({grade})")
+                                    elif score >= 6.0:
+                                        st.info(f"**{skill_name}**: {score:.1f}/10 ({grade})")
+                                    else:
+                                        st.warning(f"**{skill_name}**: {score:.1f}/10 ({grade})")
+                        
+                        with col3:
+                            for i in range(2, len(skills_list), 3):
+                                if i < len(skills_list):
+                                    skill, details = skills_list[i]
+                                    skill_name = skill.replace("_", " ").title()
+                                    score = details['score']
+                                    grade = details['grade']
+                                    
+                                    if score >= 8.0:
+                                        st.success(f"**{skill_name}**: {score:.1f}/10 ({grade})")
+                                    elif score >= 6.0:
+                                        st.info(f"**{skill_name}**: {score:.1f}/10 ({grade})")
+                                    else:
+                                        st.warning(f"**{skill_name}**: {score:.1f}/10 ({grade})")
+                    
+                    # Speaking skills feedback
+                    with st.expander("💡 Speaking Skills Feedback", expanded=False):
+                        feedback = speaking_results['feedback']
+                        
+                        for area, advice in feedback.items():
+                            if area == 'overall':
+                                st.markdown(f"**Overall Assessment:** {advice}")
+                            else:
+                                area_name = area.replace("_", " ").title()
+                                st.markdown(f"**{area_name}:** {advice}")
+                
+                else:
+                    st.warning("⚠️ Speaking skills analysis encountered an error. Using rule-based assessment.")
+                    
+            else:
+                st.info("📁 No audio recordings found for speaking skills analysis")
+        else:
+            st.info("📁 Audio directory not found. Speaking skills analysis unavailable.")
+            
+    except Exception as e:
+        st.warning(f"⚠️ Speaking skills analysis unavailable: {str(e)}")
+
+    # Sentiment Analysis
+    st.subheader("😊 Emotional & Sentiment Analysis")
+    
+    try:
+        # Initialize sentiment analyzer
+        sentiment_analyzer = SentimentAudioAnalyzer()
+        
+        # Check if we have audio files to analyze
+        audio_dir = Path("audio")
+        if audio_dir.exists():
+            audio_files = list(audio_dir.rglob("*.wav")) + list(audio_dir.rglob("*.mp3"))
+            
+            if audio_files:
+                st.info(f"🎭 Analyzing emotional states from {len(audio_files)} audio recordings")
+                
+                # Analyze the most recent audio file
+                latest_audio = max(audio_files, key=os.path.getctime)
+                
+                with st.spinner("Analyzing emotional states and sentiment..."):
+                    sentiment_results = sentiment_analyzer.analyze_sentiment(str(latest_audio))
+                
+                if 'error' not in sentiment_results:
+                    # Display sentiment results
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        # Primary emotion
+                        primary_emotion = sentiment_results['emotional_states']['primary']
+                        emotion_confidence = sentiment_results['emotional_states']['confidence']
+                        
+                        if primary_emotion in ['Confident', 'Professional', 'Calm']:
+                            st.success(f"**Primary Emotion:** {primary_emotion} 🎯")
+                            st.markdown(f"*Confidence: {emotion_confidence:.1f}*")
+                        elif primary_emotion in ['Enthusiastic', 'Excited']:
+                            st.info(f"**Primary Emotion:** {primary_emotion} ✨")
+                            st.markdown(f"*Confidence: {emotion_confidence:.1f}*")
+                        elif primary_emotion in ['Stressed', 'Anxious', 'Nervous']:
+                            st.warning(f"**Primary Emotion:** {primary_emotion} 😰")
+                            st.markdown(f"*Confidence: {emotion_confidence:.1f}*")
+                        else:
+                            st.info(f"**Primary Emotion:** {primary_emotion} 😐")
+                            st.markdown(f"*Confidence: {emotion_confidence:.1f}*")
+                    
+                    with col2:
+                        # Confidence analysis
+                        confidence_level = sentiment_results['confidence_analysis']['level']
+                        confidence_score = sentiment_results['confidence_analysis']['score']
+                        
+                        if confidence_level == "High":
+                            st.success(f"**Confidence:** {confidence_level} 💪")
+                            st.markdown(f"*Score: {confidence_score:.1f}/10*")
+                        elif confidence_level == "Medium":
+                            st.info(f"**Confidence:** {confidence_level} 📊")
+                            st.markdown(f"*Score: {confidence_score:.1f}/10*")
+                        else:
+                            st.warning(f"**Confidence:** {confidence_level} 💭")
+                            st.markdown(f"*Score: {confidence_score:.1f}/10*")
+                    
+                    with col3:
+                        # Stress analysis
+                        stress_level = sentiment_results['stress_analysis']['level']
+                        stress_score = sentiment_results['stress_analysis']['score']
+                        
+                        if stress_level == "Low":
+                            st.success(f"**Stress Level:** {stress_level} 😌")
+                            st.markdown(f"*Score: {stress_score:.1f}/10*")
+                        elif stress_level == "Medium":
+                            st.warning(f"**Stress Level:** {stress_level} 😐")
+                            st.markdown(f"*Score: {stress_score:.1f}/10*")
+                        else:
+                            st.error(f"**Stress Level:** {stress_level} 😰")
+                            st.markdown(f"*Score: {stress_score:.1f}/10*")
+                    
+                    # Emotional Intelligence Score
+                    st.subheader("🧠 Emotional Intelligence Assessment")
+                    
+                    ei_score = sentiment_results['emotional_intelligence']
+                    if ei_score >= 8.5:
+                        st.success(f"**Emotional Intelligence: {ei_score:.2f}/10** 🧠✨")
+                        st.markdown("*Exceptional emotional awareness and control*")
+                    elif ei_score >= 7.0:
+                        st.info(f"**Emotional Intelligence: {ei_score:.2f}/10** 🧠💡")
+                        st.markdown("*Strong emotional intelligence*")
+                    elif ei_score >= 5.5:
+                        st.warning(f"**Emotional Intelligence: {ei_score:.2f}/10** 🧠📈")
+                        st.markdown("*Good emotional intelligence with room for growth*")
+                    else:
+                        st.error(f"**Emotional Intelligence: {ei_score:.2f}/10** 🧠🌱")
+                        st.markdown("*Areas for emotional development identified*")
+                    
+                    # Overall sentiment
+                    overall_sentiment = sentiment_results['overall_sentiment']
+                    if overall_sentiment == "Positive":
+                        st.success(f"**Overall Sentiment: {overall_sentiment}** 😊")
+                    elif overall_sentiment == "Neutral":
+                        st.info(f"**Overall Sentiment: {overall_sentiment}** 😐")
+                    else:
+                        st.warning(f"**Overall Sentiment: {overall_sentiment}** 😔")
+                    
+                    # Detailed sentiment analysis
+                    with st.expander("🎭 Detailed Emotional Analysis", expanded=False):
+                        # All detected emotions
+                        st.markdown("**Detected Emotional States:**")
+                        all_emotions = sentiment_results['emotional_states']['all_emotions']
+                        if all_emotions:
+                            for emotion, confidence in all_emotions.items():
+                                if confidence >= 0.7:
+                                    st.success(f"• {emotion}: {confidence:.1f}")
+                                elif confidence >= 0.5:
+                                    st.info(f"• {emotion}: {confidence:.1f}")
+                                else:
+                                    st.warning(f"• {emotion}: {confidence:.1f}")
+                        else:
+                            st.info("• Neutral emotional state detected")
+                        
+                        # Confidence indicators
+                        st.markdown("**Confidence Indicators:**")
+                        confidence_indicators = sentiment_results['confidence_analysis']['indicators']
+                        for indicator in confidence_indicators:
+                            st.markdown(f"• {indicator}")
+                        
+                        # Stress markers
+                        st.markdown("**Stress Markers:**")
+                        stress_markers = sentiment_results['stress_analysis']['markers']
+                        for marker in stress_markers:
+                            st.markdown(f"• {marker}")
+                    
+                    # Sentiment recommendations
+                    with st.expander("💡 Emotional Intelligence Recommendations", expanded=False):
+                        recommendations = sentiment_results['recommendations']
+                        for i, rec in enumerate(recommendations, 1):
+                            st.markdown(f"**{i}.** {rec}")
+                    
+                    # Sentiment features breakdown
+                    with st.expander("🔍 Sentiment Features Breakdown", expanded=False):
+                        features = sentiment_results['features']
+                        
+                        # Create columns for features display
+                        col1, col2, col3 = st.columns(3)
+                        features_list = list(features.items())
+                        
+                        with col1:
+                            for i in range(0, len(features_list), 3):
+                                if i < len(features_list):
+                                    feature, score = features_list[i]
+                                    feature_name = feature.replace("_", " ").title()
+                                    
+                                    if score >= 8.0:
+                                        st.success(f"**{feature_name}**: {score:.1f}/10")
+                                    elif score >= 6.0:
+                                        st.info(f"**{feature_name}**: {score:.1f}/10")
+                                    else:
+                                        st.warning(f"**{feature_name}**: {score:.1f}/10")
+                        
+                        with col2:
+                            for i in range(1, len(features_list), 3):
+                                if i < len(features_list):
+                                    feature, score = features_list[i]
+                                    feature_name = feature.replace("_", " ").title()
+                                    
+                                    if score >= 8.0:
+                                        st.success(f"**{feature_name}**: {score:.1f}/10")
+                                    elif score >= 6.0:
+                                        st.info(f"**{feature_name}**: {score:.1f}/10")
+                                    else:
+                                        st.warning(f"**{feature_name}**: {score:.1f}/10")
+                        
+                        with col3:
+                            for i in range(2, len(features_list), 3):
+                                if i < len(features_list):
+                                    feature, score = features_list[i]
+                                    feature_name = feature.replace("_", " ").title()
+                                    
+                                    if score >= 8.0:
+                                        st.success(f"**{feature_name}**: {score:.1f}/10")
+                                    elif score >= 6.0:
+                                        st.info(f"**{feature_name}**: {score:.1f}/10")
+                                    else:
+                                        st.warning(f"**{feature_name}**: {score:.1f}/10")
+                
+                else:
+                    st.warning("⚠️ Sentiment analysis encountered an error. Using rule-based analysis.")
+                    
+            else:
+                st.info("🎭 No audio recordings found for sentiment analysis")
+        else:
+            st.info("🎭 Audio directory not found. Sentiment analysis unavailable.")
+            
+    except Exception as e:
+        st.warning(f"⚠️ Sentiment analysis unavailable: {str(e)}")
 
     # New interview option
     st.subheader("🔄 Start New Interview")

@@ -75,12 +75,63 @@ Final results include:
 - Complete conversation history
 - Personalized recommendations
 
-## 🚀 How to run in local environment.
-1.  Clone the repository
-2. Create a virtual environment
-3. Install dependencies inside the virtual environment.
-4. Add environment variables (.env.example) like API keys
-5. Run the application.
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.8 or higher
+- Virtual environment (recommended)
+- API keys for LLM and Speech-to-Text services
+
+### Installation Steps
+
+1. **Clone the repository** (if not already cloned)
+   ```bash
+   git clone <repository-url>
+   cd AI-Interview-System
+   ```
+
+2. **Create and activate virtual environment**
+   ```bash
+   # Create virtual environment
+   python -m venv .venv
+   
+   # Activate virtual environment
+   # Windows (Git Bash):
+   source .venv/Scripts/activate
+   # Windows (PowerShell):
+   .\.venv\Scripts\Activate.ps1
+   # Mac/Linux:
+   source .venv/bin/activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables**
+   ```bash
+   # Copy example file
+   copy env_example.txt .env    # Windows
+   # OR
+   cp env_example.txt .env      # Mac/Linux
+   
+   # Edit .env file and add your API keys:
+   # - LLM_MODEL (e.g., mistral/mistral-large-latest)
+   # - MISTRAL_API_KEY or OPENAI_API_KEY
+   # - SPEECHMATICS_API_KEY
+   ```
+
+5. **Run the application**
+   ```bash
+   streamlit run app.py
+   ```
+
+6. **Open in browser**
+   - Navigate to http://localhost:8501
+   - **Important**: Use Chrome browser for microphone access
+
+📖 For detailed setup instructions and troubleshooting, see [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)
 
 
 ## 🔄 Multiple Interviews
@@ -97,6 +148,34 @@ Final results include:
 - Take your time - there's no rush
 - Treat it like a real interview
 - Review feedback to improve
+
+## 📚 Documentation
+
+Additional documentation is available in the `docs/` folder:
+- [SETUP_GUIDE.md](docs/SETUP_GUIDE.md) - Detailed setup and troubleshooting guide
+- [SCORING_EXPLANATION.md](docs/SCORING_EXPLANATION.md) - How the scoring system works
+- [TECH_STACK_DOCUMENTATION.md](docs/TECH_STACK_DOCUMENTATION.md) - Technical architecture details
+- [DATASET_GUIDE.md](docs/DATASET_GUIDE.md) - Dataset information and usage
+
+## 📁 Project Structure
+
+```
+AI-Interview-System/
+├── app.py                 # Main Streamlit application
+├── utils/                 # Utility modules
+│   ├── analyze_candidate.py
+│   ├── evaluation.py
+│   ├── llm_call.py
+│   ├── text_to_speech.py
+│   └── ...
+├── models/                # Trained models
+├── audio/                 # Audio files (generated during interviews)
+├── outputs/               # Interview results (JSON files)
+├── docs/                  # Documentation files
+├── requirements.txt       # Python dependencies
+├── env_example.txt        # Environment variables template
+└── README.md              # This file
+```
 
 ---
 

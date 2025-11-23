@@ -25,10 +25,11 @@ def extract_resume_info_using_llm(resume_content):
 
 
 ai_greeting_messages = [
-    lambda name, interviewer_name: f"Hi {name}, welcome to this AI interview! My name is {interviewer_name} and I'll be your interviewer today. Let's get started!\n\nCan you tell me a bit about yourself and what you're looking for in a job?",
-    lambda name, interviewer_name: f"Hi {name}, welcome to this AI interview! My name is {interviewer_name} and I'll be your interviewer today. Let's get started!\n\nCan you give me a quick overview of your background and experience?",
-    lambda name, interviewer_name: f"Hi {name}, welcome to this AI interview! My name is {interviewer_name} and I'll be your interviewer today. Let's get started!\n\nCan you tell me a little bit about your goals and aspirations?",
-    lambda name, interviewer_name: f"Hi {name}, welcome to this AI interview! My name is {interviewer_name} and I'll be your interviewer today. Let's get started!\n\nCan you briefly introduce yourself and tell me about your achievements and skills?",
+    lambda name, interviewer_name: f"Hi {name}, welcome! My name is {interviewer_name} and I'll be conducting your interview today. Thanks for taking the time to chat with me. I've had a chance to review your resume, and I'm excited to learn more about you.\n\nTo get us started, can you tell me a bit about yourself and what you're looking for in your next role?",
+    lambda name, interviewer_name: f"Hello {name}! I'm {interviewer_name}, and I'm really glad we can have this conversation today. I've gone through your background, and there are several things that caught my attention.\n\nWhy don't we start with you giving me a quick overview of your background and experience?",
+    lambda name, interviewer_name: f"Hi {name}, it's great to meet you! I'm {interviewer_name}, and I'll be talking with you today. I took a look at your resume, and I'm looking forward to our discussion.\n\nLet's start off with you telling me a little bit about yourself - what drives you in your career and what you're hoping to achieve?",
+    lambda name, interviewer_name: f"Hey {name}! Thanks for being here today. I'm {interviewer_name}, and I'm excited to get to know you better. Your resume shows some interesting experience.\n\nTo kick things off, can you introduce yourself and share what you're most proud of in your career so far?",
+    lambda name, interviewer_name: f"Hello {name}! I'm {interviewer_name}, and it's a pleasure to meet you. I've reviewed your application, and I'm curious to learn more about your journey.\n\nLet's dive in - can you tell me about yourself and what brings you here today?",
 ]
 
 

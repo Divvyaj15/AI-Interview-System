@@ -13,10 +13,13 @@ venv/
 # environment variables
 .env
 
-# custom folders
-outputs/*  
+# custom folders - ignore contents but keep folder structure
+outputs/*
+!outputs/.gitkeep
 audio/*
+!audio/.gitkeep
 inputs/*
+!inputs/.gitkeep
 
 # IDE files
 .vscode/

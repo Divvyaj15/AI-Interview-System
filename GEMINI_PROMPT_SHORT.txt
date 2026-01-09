@@ -1,0 +1,50 @@
+Update this flowchart image to reflect the CURRENT implementation of my AI-Interview-System. Show what is actually built and working, not future plans.
+
+STAGE 1: Frontend & User Interface (Streamlit)
+- Streamlit web application with chat interface
+- Resume PDF upload and processing
+- Job description input
+- Real-time audio recording
+- Text-to-speech for AI questions
+- Progress tracking and session management
+
+STAGE 2: Resume Processing & Question Generation
+- PDF resume parsing and text extraction
+- Mistral AI LLM for resume analysis (extracts name, skills, experience, education, projects)
+- AI question generation using Mistral LLM (technical questions from all resume sections, two-way conversation, adaptive questioning)
+
+STAGE 3: Audio Processing & Transcription
+- Real-time audio recording (WAV format)
+- Session-based audio file storage (organized by candidate name)
+- Speechmatics API for speech-to-text transcription
+- Audio validation and quality checks
+
+STAGE 4: Multi-Layer Analysis System
+- Content Analysis (Mistral LLM): Response evaluation, scoring, feedback generation
+- Speaking Skills Analysis (ML Model): Random Forest model analyzes speech rate, pitch, volume, clarity, fluency (12 audio features)
+- Sentiment Analysis (ML Model): Random Forest model detects emotions (Confident, Anxious, etc.), confidence levels, stress levels, emotional intelligence (16 sentiment features)
+
+STAGE 5: Scoring & Feedback System
+- Unified scoring combining content, speaking skills, and sentiment scores
+- Per-question feedback with strengths, improvements, recommendations
+- Overall interview evaluation with final score, market positioning, competency assessment, complete transcript
+
+VISUAL REQUIREMENTS:
+- Keep orange background, white text, dark blue titles
+- Show sequential flow: Stage 1 → Stage 2 → Stage 3 → Stage 4 → Stage 5
+- Use arrows for data flow
+- Title: "AI INTERVIEW SYSTEM - CURRENT ARCHITECTURE"
+- Professional, clean design
+
+KEY POINTS:
+- Currently implemented (not future plans)
+- Streamlit frontend (no separate backend API)
+- Two ML models active (speaking skills + sentiment)
+- Two external APIs (Mistral LLM + Speechmatics)
+- Session-based analysis
+- No database (file-based storage)
+- No facial analysis (audio only)
+
+
+
+
